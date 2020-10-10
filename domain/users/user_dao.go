@@ -3,6 +3,7 @@ package users
 import (
 	"fmt"
 
+	"github.com/estebanMe/bookstore_users-api/datasource/mysql/usersdb"
 	"github.com/estebanMe/bookstore_users-api/utils/dateutils"
 	"github.com/estebanMe/bookstore_users-api/utils/errors"
 )
@@ -13,6 +14,9 @@ var (
 
 //Get get record by userId
 func (user *User) Get() *errors.RestErr {
+	if err := usersdb.Client.Ping(); err != nil {
+		panic(err)
+	}
 	fmt.Println("El map con las get querys", usersDB)
 	result := usersDB[user.ID]
 
