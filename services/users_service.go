@@ -8,11 +8,11 @@ import (
 //GetUser get user by id
 func GetUser(userID int64)(*users.User, *errors.RestErr){
 	
-	result := users.User{ID: userID}
+	result := &users.User{ID: userID}
 	if err := result.Get(); err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return result, nil
 }
 
 
