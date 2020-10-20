@@ -11,16 +11,14 @@ import (
 //Client my connection with sql database
 var (
 	Client *sql.DB
-
-
-) 
+)
 
 func init() {
 	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
-	" ",
-	"",
-	"",
-	"",
+		"root",
+		"victoresteban",
+		"localhost:3306",
+		"users_db",
 	)
 	println(dataSourceName)
 	var err error

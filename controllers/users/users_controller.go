@@ -11,8 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//CreateUser CreateUser
-func CreateUser(c *gin.Context) {
+func getUserID(userIDParam string) (int64, *errors.RestErr) {
+	userID, userErr := strconv.ParseInt(userIDParam, 10, 64)
+	if userErr != nil {
+		return 0, errors.NewBadRequestError("invalid user id")
+	}
+	return userID, nil
+}
+
+//Create create user controller
+func Create(c *gin.Context) {
 	var user users.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -31,13 +39,12 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, result)
 }
 
-//GetUser GetUser
-func GetUser(c *gin.Context) {
-	userID, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
+//Get Get user controller
+func Get(c *gin.Context) {
+	userID, idErr := getUserID(c.Param("user_id"))
 
-	if userErr != nil {
-		err := errors.NewBadRequestError("invalid user id")
-		c.JSON(err.Status, err)
+	if idErr != nil {
+		c.JSON(idErr.Status, idErr)
 		return
 	}
 
@@ -50,14 +57,13 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, user)
 }
 
-//UpdateUser UpdateUser
-func UpdateUser(c *gin.Context) {
+//Update Update user controller
+func Update(c *gin.Context) {
 
-	userID, userErr := strconv.ParseInt(c.Param("user_id"), 10, 64)
+	userID, idErr := getUserID(c.Param("user_id"))
 
-	if userErr != nil {
-		err := errors.NewBadRequestError("invalid user id")
-		c.JSON(err.Status, err)
+	if idErr != nil {
+		c.JSON(idErr.Status, idErr)
 		return
 	}
 
@@ -82,4 +88,37 @@ func UpdateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 
+}
+
+//Delete delete user controller
+func Delete(c *gin.Context) {
+
+	userID, idErr := getUserID(c.Param("user_id"))
+
+	if idErr != nil {
+		c.JSON(idErr.Status, idErr)
+		return
+	}
+
+	if err := services.DeleteUser(userID); err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]string{"status": "delete"})
+
+}
+
+//Search serch from query status
+func Search(c *gin.Context ){
+  status := c.Query("status")
+
+  users, err := services.Search(status)
+
+  if err != nil {
+	  c.JSON(err.Status, err)
+	  return
+  }
+
+  c.JSON(http.StatusOK, users)
 }
