@@ -36,7 +36,7 @@ func Create(c *gin.Context) {
 		return
 	}
 	fmt.Println("The user has been created", user)
-	c.JSON(http.StatusCreated, result)
+	c.JSON(http.StatusCreated, result.Marshall(c.GetHeader("X-Public") == "true"))
 }
 
 //Get Get user controller
@@ -54,7 +54,7 @@ func Get(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, user)
+	c.JSON(http.StatusCreated, user.Marshall(c.GetHeader("X-Public") == "true"))
 }
 
 //Update Update user controller
@@ -86,7 +86,7 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	c.JSON(http.StatusOK, result.Marshall(c.GetHeader("X-Public") == "true"))
 
 }
 
@@ -119,6 +119,7 @@ func Search(c *gin.Context ){
 	  c.JSON(err.Status, err)
 	  return
   }
+  
 
-  c.JSON(http.StatusOK, users)
+  c.JSON(http.StatusOK, users.Marshall(c.GetHeader("X-Public") == "true"))
 }

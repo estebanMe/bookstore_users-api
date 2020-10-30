@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/estebanMe/bookstore_users-api/domain/users"
+	"github.com/estebanMe/bookstore_users-api/utils/criptoutils"
 	"github.com/estebanMe/bookstore_users-api/utils/dateutils"
 	"github.com/estebanMe/bookstore_users-api/utils/errors"
 )
@@ -23,8 +24,8 @@ func CreateUser(user users.User) (*users.User, *errors.RestErr) {
 	}
 
     user.Status = users.StatusActive
-
-    user.DateCreated = dateutils.GetNowDBFormat()
+	user.DateCreated = dateutils.GetNowDBFormat()
+	user.Password = criptoutils.GetMd5(user.Password)
 	if err := user.Save(); err != nil {
 		return nil, err
 	}
@@ -69,8 +70,8 @@ func DeleteUser(userID int64) *errors.RestErr {
  return user.Delete()
 }
 
-//FindByStatus service of find record by status value 
-func Search(status string)  ([]users.User, *errors.RestErr) {
+//Search service of find record by status value 
+func Search(status string)  (users.Users, *errors.RestErr) {
 	dao := &users.User{}
 	return dao.FindByStatus(status)
 
