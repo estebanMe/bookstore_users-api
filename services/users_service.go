@@ -7,23 +7,38 @@ import (
 	"github.com/estebanMe/bookstore_users-api/utils/errors"
 )
 
-//GetUser get user by id
-func GetUser(userID int64) (*users.User, *errors.RestErr) {
+//UsersService of users service Interface
+var (
+	UsersService usersServiceInterface = &usersService{}
+)
 
-	result := &users.User{ID: userID}
-	if err := result.Get(); err != nil {
+type usersService struct{}
+
+type usersServiceInterface interface {
+	GetUser(int64) (*users.User, *errors.RestErr)
+	CreateUser(users.User) (*users.User, *errors.RestErr)
+	UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr)
+	DeleteUser(userID int64) *errors.RestErr
+	SearchUser(status string) (users.Users, *errors.RestErr)
+}
+
+//GetUser get user by id
+func (s *usersService) GetUser(userID int64) (*users.User, *errors.RestErr) {
+
+	dao := &users.User{ID: userID}
+	if err := dao.Get(); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return dao, nil
 }
 
 //CreateUser Create user services
-func CreateUser(user users.User) (*users.User, *errors.RestErr) {
+func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RestErr) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
 
-    user.Status = users.StatusActive
+	user.Status = users.StatusActive
 	user.DateCreated = dateutils.GetNowDBFormat()
 	user.Password = criptoutils.GetMd5(user.Password)
 	if err := user.Save(); err != nil {
@@ -34,9 +49,10 @@ func CreateUser(user users.User) (*users.User, *errors.RestErr) {
 }
 
 //UpdateUser UpdateUser
-func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) {
-	current, err := GetUser(user.ID)
-	if err != nil {
+func (s *usersService) UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) {
+	current := &users.User{ID: user.ID}
+
+	if err := current.Get(); err != nil {
 		return nil, err
 	}
 
@@ -65,15 +81,14 @@ func UpdateUser(isPartial bool, user users.User) (*users.User, *errors.RestErr) 
 }
 
 //DeleteUser delete user service
-func DeleteUser(userID int64) *errors.RestErr {
- user := &users.User{ID: userID}
- return user.Delete()
+func (s *usersService) DeleteUser(userID int64) *errors.RestErr {
+	user := &users.User{ID: userID}
+	return user.Delete()
 }
 
-//Search service of find record by status value 
-func Search(status string)  (users.Users, *errors.RestErr) {
+//Search service of find record by status value
+func (s *usersService) SearchUser(status string) (users.Users, *errors.RestErr) {
 	dao := &users.User{}
 	return dao.FindByStatus(status)
 
-	
 }
