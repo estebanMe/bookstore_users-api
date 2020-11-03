@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"errors"
 	"net/http"
 )
 
@@ -9,6 +10,11 @@ type RestErr struct {
 	Message string `json:"message"`
 	Status  int    `json:"status"`
 	Error   string `json:"error"`
+}
+
+//NewError with parameter msg
+func NewError(msg string) error {
+   return errors.New(msg)
 }
 
 //NewBadRequestError return BadRequestError with param message
